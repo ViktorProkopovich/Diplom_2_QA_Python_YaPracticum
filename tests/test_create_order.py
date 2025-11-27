@@ -9,10 +9,8 @@ WORKING_USER = {"email": "viktorprokopovich3131@ya.ru",
                 "password": "qwerty1234"}
 
 def get_auth_token():
-    resp = requests.post(Endpoints.REGISTER, json=WORKING_USER)
-    if resp.status_code == 403:
-        resp = requests.post(Endpoints.LOGIN, json=WORKING_USER)
-    assert resp.status_code == 200, f"Auth failed: {resp.text}"
+    resp = requests.post(Endpoints.LOGIN, json=WORKING_USER)
+    assert resp.status_code == 200, f"Login failed: {resp.text}"
     token = resp.json()["accessToken"]
     return token
 

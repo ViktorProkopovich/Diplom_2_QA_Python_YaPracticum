@@ -26,16 +26,17 @@ class TestUserCreation:
 
     @allure.title("Создать пользователя, который уже зарегистрирован")
     def test_create_existing_user(self):
-        user_data = {"email": fake.email(),
-                     "password": fake.password(length=10, special_chars=False, digits=True, upper_case=False),
-                     "name": fake.first_name()}
-        
+        email = fake.email()
+        password = fake.password(length=10, special_chars=False, digits=True, upper_case=False)
+        name = fake.first_name()
+        user_data = {"email": email, "password": password, "name": name}
+
         response1 = requests.post(Endpoints.REGISTER, json=user_data)
         assert response1.status_code == StatusCode.OK
 
         response2 = requests.post(Endpoints.REGISTER, json=user_data)
-        assert response2.status_code == StatusCode.FORBIDDEN
 
+        assert response2.status_code == StatusCode.FORBIDDEN
         assert response2.json()["message"] == TextResponse.USER_ALREADY_EXISTS
 
         token = response1.json()["accessToken"]
