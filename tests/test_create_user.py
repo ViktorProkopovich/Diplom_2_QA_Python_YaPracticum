@@ -8,6 +8,13 @@ from helpers.messages import TextResponse
 
 fake = Faker('en_US')
 
+WORKING_USER = {"email": f"{fake.user_name()}.{fake.random_number(digits=6)}@ya.ru",
+                "password": "qwerty1234",
+                "name": fake.first_name()}
+
+resp = requests.post(Endpoints.REGISTER, json=WORKING_USER)
+
+
 class TestUserCreation:
 
     @allure.title("Создать уникального пользователя")
@@ -25,22 +32,18 @@ class TestUserCreation:
         requests.delete(Endpoints.USER, headers={"Authorization": f"Bearer {access_token}"})
 
     @allure.title("Создать пользователя, который уже зарегистрирован")
-    def test_create_existing_user(self):
-        email = fake.email()
-        password = fake.password(length=10, special_chars=False, digits=True, upper_case=False)
-        name = fake.first_name()
-        user_data = {"email": email, "password": password, "name": name}
+    def test_create_working_user(self):
+        response = requests.post(Endpoints.REGISTER, json=WORKING_USER)
 
-        response1 = requests.post(Endpoints.REGISTER, json=user_data)
-        assert response1.status_code == StatusCode.OK
+        assert response.status_code == StatusCode.FORBIDDEN
+        assert response.json()["message"] == TextResponse.USER_ALREADY_EXISTS
 
-        response2 = requests.post(Endpoints.REGISTER, json=user_data)
-
-        assert response2.status_code == StatusCode.FORBIDDEN
-        assert response2.json()["message"] == TextResponse.USER_ALREADY_EXISTS
-
-        token = response1.json()["accessToken"]
-        requests.delete(Endpoints.USER, headers={"Authorization": f"Bearer {token}"})
+        login_resp = requests.post(Endpoints.LOGIN, json={
+            "email": WORKING_USER["email"],
+            "password": WORKING_USER["password"]})
+        if login_resp.status_code == StatusCode.OK:
+            token = login_resp.json()["accessToken"]
+            requests.delete(Endpoints.USER, headers={"Authorization": f"Bearer {token}"})
 
     @allure.title("Создать пользователя и не заполнить одно из обязательных полей")
     @pytest.mark.parametrize("required_field", ["email", "password", "name"])
