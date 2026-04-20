@@ -1,4 +1,4 @@
-# 🍔 Проект Diplom_Part3 — Автотесты API для *Stellar Burgers*
+# 🍔 Проект Diplom_2_QA_Python_YaPracticum — Автотесты API для *Stellar Burgers*
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.10+-blue?logo=python" alt="Python">
